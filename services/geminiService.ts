@@ -26,7 +26,8 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
   }
 
   // 3. 모델 설정 (gemini-1.5-flash 사용)
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  // 모델 이름을 가장 안정적인 버전으로 변경
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   const prompt = `
     Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon (Sinseong-dong/Doryong-dong area).
