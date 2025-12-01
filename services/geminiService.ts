@@ -1,33 +1,48 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// ⚠️ [매우 중요] 아까 채팅방에 올렸던 옛날 키(AIza...JU)는 쓰지 마세요!
-// 반드시 구글 AI Studio 'Default Gemini Project'에서 방금 새로 받은 키를 넣어주세요.
-const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto"; 
+// [적용 완료] 보내주신 새로운 API 키를 적용했습니다.
+const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
+// JSON 파싱 헬퍼 함수
 function cleanAndParseJSON(text: string): any {
   try {
     return JSON.parse(text);
   } catch (e) {
     const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
     if (jsonMatch && jsonMatch[1]) return JSON.parse(jsonMatch[1]);
+    
     const codeMatch = text.match(/```\n([\s\S]*?)\n```/);
     if (codeMatch && codeMatch[1]) return JSON.parse(codeMatch[1]);
+    
     throw new Error("Failed to parse JSON from response");
   }
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [수정] -001을 붙인 정식 버전명을 사용합니다. (404 방지)
+  // 새 키와 호환성이 가장 좋은 정식 버전 모델을 사용합니다.
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
 
   const prompt = `
-    Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon.
-    Output strictly a JSON object with a key "restaurants".
-    Each item must have: "name", "category", "distance", "aiRating", "aiSummary", "keywords", "address".
-    Ensure valid JSON inside a code block.
+    Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon (Sinseong-dong/Doryong-dong area).
+    Constraints:
+    1. Must be within a 15-minute drive from NRF.
+    2. Focus on places suitable for employee lunch.
+    3. Analyze known information to generate a summary.
+    
+    Output strictly a JSON object with a key "restaurants" containing an array. 
+    Each item must have:
+    - "name": string (Korean name)
+    - "category": string (One of: "한식", "중식", "양식", "분식", "기타")
+    - "distance": string (e.g., "자차 5분" or "1.2km")
+    - "aiRating": number (1.0 to 5.0)
+    - "aiSummary": string (A concise 1-2 sentence summary)
+    - "keywords": array of strings
+    - "address": string
+
+    Ensure the response is valid JSON inside a code block.
   `;
 
   try {
@@ -38,6 +53,11 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
     if (!text) throw new Error("Empty response from AI");
 
     const parsedData = cleanAndParseJSON(text);
+    
+    if (!parsedData.restaurants || !Array.isArray(parsedData.restaurants)) {
+        throw new Error("Invalid data structure returned");
+    }
+
     return parsedData.restaurants.map((item: any, index: number) => ({
       id: `gemini-${index}-${Date.now()}`,
       name: item.name,
@@ -48,6 +68,7 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
       keywords: item.keywords || [],
       address: item.address || ""
     }));
+
   } catch (error) {
     console.error("Gemini API Error details:", error);
     throw error;
