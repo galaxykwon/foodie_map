@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// [테스트용] API 키 하드코딩 (작동 확인 후에는 꼭 지우세요!)
+// [테스트용] API 키 직접 입력 (성공 후에는 꼭 지우세요!)
 const apiKey = "AIzaSyApifHunZKdNRndVEN4EJlostevgbYneJU"; 
 
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -22,8 +22,7 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [수정됨] 별명 대신 정식 버전 명칭(-001)을 사용합니다.
-  // 이 버전은 404 오류가 나지 않는 가장 확실한 버전입니다.
+  // [★중요★] 모델 이름 뒤에 -001을 붙여야 404 에러가 사라집니다.
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
 
   const prompt = `
