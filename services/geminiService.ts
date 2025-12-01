@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
 // [테스트용] API 키 직접 입력 (성공 후에는 꼭 지우세요!)
-const apiKey = "AIzaSyApifHunZKdNRndVEN4EJlostevgbYneJU"; 
+const apiKey = "AIzaSyDy7gcSLJdtfdn2zMkp6KnCzj6cUvsffBQ"; 
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
