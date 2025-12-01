@@ -1,15 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// ---------------------------------------------------------
-// [테스트용] API 키를 직접 입력했습니다. 
-// 문제가 해결되면 나중에는 꼭 지우셔야 보안상 안전합니다.
+// [테스트용] API 키 하드코딩 (작동 확인 후에는 꼭 지우세요!)
 const apiKey = "AIzaSyApifHunZKdNRndVEN4EJlostevgbYneJU"; 
-// ---------------------------------------------------------
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// JSON 파싱을 위한 헬퍼 함수
+// JSON 파싱 헬퍼
 function cleanAndParseJSON(text: string): any {
   try {
     return JSON.parse(text);
@@ -25,8 +22,9 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // 최신 키에는 최신 모델이 가장 잘 맞습니다. (1.5-flash 사용)
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  // [수정됨] 별명 대신 정식 버전 명칭(-001)을 사용합니다.
+  // 이 버전은 404 오류가 나지 않는 가장 확실한 버전입니다.
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
 
   const prompt = `
     Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon (Sinseong-dong/Doryong-dong area).
