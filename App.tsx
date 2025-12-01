@@ -89,9 +89,9 @@ const App: React.FC = () => {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                 N
               </div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-                한국연구재단 <span className="text-blue-600">맛집 지도</span>
-              </h1>
+              <h1 className="text-xl font-bold ...">
+  한국연구재단 <span className="text-blue-600">맛집 지도 (테스트)</span>
+                </h1>
             </div>
             <div className="text-xs text-gray-500 hidden sm:block">
               대전청사 & 연구단지 점심 가이드
