@@ -1,24 +1,27 @@
 import { GoogleGenAI } from "@google/genai";
 import { Restaurant, Category } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// [수정 1] Vite 환경 변수 접근 방식 변경 + 변수명에 VITE_ 붙임
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
-// Helper to parse JSON from markdown code blocks if necessary
+// API 키가 없을 경우 안전 장치
+if (!apiKey) {
+  console.error("API Key is missing! Check your .env file or Vercel settings.");
+}
+
+const ai = new GoogleGenAI({ apiKey: apiKey });
+
+// Helper to parse JSON from markdown code blocks
 function cleanAndParseJSON(text: string): any {
   try {
-    // Try direct parse first
     return JSON.parse(text);
   } catch (e) {
-    // Look for ```json block
     const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
-    if (jsonMatch && jsonMatch[1]) {
-      return JSON.parse(jsonMatch[1]);
-    }
-    // Look for just ``` block
+    if (jsonMatch && jsonMatch[1]) return JSON.parse(jsonMatch[1]);
+    
     const codeMatch = text.match(/```\n([\s\S]*?)\n```/);
-    if (codeMatch && codeMatch[1]) {
-      return JSON.parse(codeMatch[1]);
-    }
+    if (codeMatch && codeMatch[1]) return JSON.parse(codeMatch[1]);
+    
     throw new Error("Failed to parse JSON from response");
   }
 }
@@ -46,18 +49,16 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      // [수정 2] 존재하는 모델명으로 변경 (2.5 -> 1.5)
+      model: "gemini-1.5-flash", 
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
-        // Note: responseMimeType is NOT set because we are using googleSearch
       },
     });
 
     const text = response.text;
-    if (!text) {
-      throw new Error("Empty response from AI");
-    }
+    if (!text) throw new Error("Empty response from AI");
 
     const parsedData = cleanAndParseJSON(text);
     
@@ -65,7 +66,6 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
         throw new Error("Invalid data structure returned");
     }
 
-    // Map to ensure types match strictly
     return parsedData.restaurants.map((item: any, index: number) => ({
       id: `gemini-${index}-${Date.now()}`,
       name: item.name,
@@ -78,7 +78,7 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
     }));
 
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error details:", error);
     throw error;
   }
 };
