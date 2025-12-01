@@ -1,39 +1,51 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// 1. 환경 변수 불러오기 (Vite 방식)
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+// ---------------------------------------------------------
+// [테스트용] API 키를 직접 입력했습니다. 
+// 문제가 해결되면 나중에는 꼭 지우셔야 보안상 안전합니다.
+const apiKey = "AIzaSyApifHunZKdNRndVEN4EJlostevgbYneJU"; 
+// ---------------------------------------------------------
 
-// 2. API 키 설정 (키가 없으면 초기화 안 함)
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const genAI = new GoogleGenerativeAI(apiKey);
 
-// JSON 파싱 헬퍼 함수
+// JSON 파싱을 위한 헬퍼 함수
 function cleanAndParseJSON(text: string): any {
   try {
     return JSON.parse(text);
   } catch (e) {
     const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
     if (jsonMatch && jsonMatch[1]) return JSON.parse(jsonMatch[1]);
+    
     const codeMatch = text.match(/```\n([\s\S]*?)\n```/);
     if (codeMatch && codeMatch[1]) return JSON.parse(codeMatch[1]);
+    
     throw new Error("Failed to parse JSON from response");
   }
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  if (!genAI) {
-    throw new Error("API Key가 없습니다. Vercel 환경 변수(VITE_GOOGLE_API_KEY)를 확인해주세요.");
-  }
-
-  // 3. 모델 설정 (gemini-1.5-flash 사용)
-  // 호환성이 가장 좋은 gemini-pro 모델 사용
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  // 최신 키에는 최신 모델이 가장 잘 맞습니다. (1.5-flash 사용)
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
     Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon (Sinseong-dong/Doryong-dong area).
-    Output strictly a JSON object with a key "restaurants".
-    Each item must have: "name", "category", "distance", "aiRating", "aiSummary", "keywords", "address".
-    Ensure valid JSON inside a code block.
+    Constraints:
+    1. Must be within a 15-minute drive from NRF.
+    2. Focus on places suitable for employee lunch.
+    3. Analyze known information to generate a summary.
+    
+    Output strictly a JSON object with a key "restaurants" containing an array. 
+    Each item must have:
+    - "name": string (Korean name)
+    - "category": string (One of: "한식", "중식", "양식", "분식", "기타")
+    - "distance": string (e.g., "자차 5분" or "1.2km")
+    - "aiRating": number (1.0 to 5.0)
+    - "aiSummary": string (A concise 1-2 sentence summary)
+    - "keywords": array of strings
+    - "address": string
+
+    Ensure the response is valid JSON inside a code block.
   `;
 
   try {
@@ -44,6 +56,11 @@ const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     if (!text) throw new Error("Empty response from AI");
 
     const parsedData = cleanAndParseJSON(text);
+    
+    if (!parsedData.restaurants || !Array.isArray(parsedData.restaurants)) {
+        throw new Error("Invalid data structure returned");
+    }
+
     return parsedData.restaurants.map((item: any, index: number) => ({
       id: `gemini-${index}-${Date.now()}`,
       name: item.name,
@@ -54,8 +71,9 @@ const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       keywords: item.keywords || [],
       address: item.address || ""
     }));
+
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error details:", error);
     throw error;
   }
 };
