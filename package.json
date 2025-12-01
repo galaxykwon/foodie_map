@@ -1,5 +1,5 @@
 {
-  "name": "한국연구재단-맛집-지도",
+  "name": "nrf-food-map",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,11 +8,11 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-"dependencies": {
-    "react": "^18.2.0",        
+  "dependencies": {
+    "react": "^18.2.0",
     "@google/generative-ai": "^0.21.0",
-    "react-dom": "^18.2.0"     
-}
+    "react-dom": "^18.2.0"
+  },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
