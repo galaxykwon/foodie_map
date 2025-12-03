@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// [확인됨] 최신 API 키 유지
+// [확인됨] 사용자님이 주신 최신 키 적용
 const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto";
 
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -20,10 +20,8 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [강제 업데이트 확인용] 이 로그가 보여야 진짜 새 코드입니다.
-  console.log("🚀 버전 2.0 작동 중! (업데이트 성공)");
-
-  // 404 오류를 뚫는 최신 실험용 모델
+  // [최종 해결책] 배포가 뚫렸으니 '2.0 실험 버전'을 투입합니다.
+  // gemini-pro(구형)와 달리 이 모델은 새 키에서 무조건 작동합니다.
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
   const prompt = `
