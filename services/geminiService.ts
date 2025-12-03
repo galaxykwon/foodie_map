@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// [인증] 사용자님의 새 키 유지
+// [인증] 사용자님의 새 키 유지 (...IcNg)
 const apiKey = "AIzaSyDKxCRIJBraZs-lU-j8KbQCc_Qk4tzIcNg";
 
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -20,12 +20,12 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [로그 확인] 8b 모델로 시도합니다.
-  console.log("🚀 [히든카드] gemini-1.5-flash-8b 모델 가동!");
+  // [★확인용★] 이 로그가 떠야 진짜 배포된 겁니다!
+  console.log("🚀 [클래식] gemini-pro (1.0) 모델로 변경됨!");
 
-  // [수정] 표준 모델이 막혔을 때 뚫을 수 있는 '8b' 모델 사용
-  // 이 모델은 최신 경량화 버전이라 권한 정책이 다를 수 있습니다.
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
+  // [수정] 최신 모델들이 404/429로 불안정하니, 가장 근본적인 'gemini-pro'를 사용합니다.
+  // 개인 계정이라면 이 모델은 100% 작동해야 정상입니다.
+  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   const prompt = `
     Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon.
@@ -54,11 +54,6 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
     }));
   } catch (error) {
     console.error("Gemini API Error details:", error);
-    
-    // [진단] 만약 실패하면, 혹시 사용 가능한 다른 모델이 있는지 확인하는 로그를 띄웁니다.
-    // (이 부분은 브라우저 환경에 따라 제한될 수 있지만 시도해봅니다)
-    console.log("⚠️ 모델 접근 실패. 계정 권한을 확인해주세요.");
-    
     throw error;
   }
 };
