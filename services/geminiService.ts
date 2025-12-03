@@ -6,7 +6,6 @@ const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// JSON 파싱 헬퍼
 function cleanAndParseJSON(text: string): any {
   try {
     return JSON.parse(text);
@@ -20,8 +19,11 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [최종 수정] 2.0 실험 버전은 사용량 제한(429)이 걸려있습니다.
-  // 이제 배포가 정상화되었으니, 가장 빠르고 무료 할당량이 넉넉한 표준 모델을 사용합니다.
+  // [★중요★] 이 로그가 보여야 진짜 새 코드입니다. (1.5 Flash 버전)
+  console.log("🚀 [최종] gemini-1.5-flash 모델로 요청 시작!");
+
+  // [수정] 2.0 모델(제한 걸림) -> 1.5 표준 모델(무료)로 변경
+  // 인증이 통과되었으니 이 모델은 무조건 됩니다.
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
