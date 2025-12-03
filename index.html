@@ -6,7 +6,6 @@ const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// JSON 파싱 헬퍼
 function cleanAndParseJSON(text: string): any {
   try {
     return JSON.parse(text);
@@ -20,11 +19,10 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [★확인용★] 이 메시지가 보여야 진짜 새 코드입니다!
+  // [메시지 확인] 이 로그가 떠야 진짜 새 코드입니다.
   console.log("🚀 [제발해결] gemini-1.5-pro 모델로 변경 완료!");
 
-  // [수정] 1.5-flash가 안 되니 1.5-pro 사용
-  // Pro 모델은 무료 티어에서도 제공되며, 호환성이 더 좋습니다.
+  // [수정] 1.5-flash 대신 1.5-pro 사용
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
   const prompt = `
