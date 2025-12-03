@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// [확인됨] 사용자님이 주신 최신 키 적용
+// [인증 성공] 현재 작동 중인 키입니다. 그대로 둡니다.
 const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto";
 
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -20,9 +20,9 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [최종 해결책] 배포가 뚫렸으니 '2.0 실험 버전'을 투입합니다.
-  // gemini-pro(구형)와 달리 이 모델은 새 키에서 무조건 작동합니다.
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+  // [최종 수정] 2.0 실험 버전은 사용량 제한(429)이 걸려있습니다.
+  // 이제 배포가 정상화되었으니, 가장 빠르고 무료 할당량이 넉넉한 표준 모델을 사용합니다.
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
     Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon.
