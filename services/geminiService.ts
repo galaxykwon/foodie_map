@@ -1,82 +1,76 @@
-import { Restaurant } from "../types";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Restaurant, Category } from "../types";
 
-// [긴급 처방] API 키 스트레스 받지 마세요!
-// 일단 AI 연결 없이 '샘플 데이터'를 바로 보여주는 모드로 변경합니다.
-// 이 코드는 100% 작동합니다. 화면이 어떻게 나오는지 먼저 확인하세요!
+// [★필수] 방금 '시크릿 모드'에서 새로 받은 깨끗한 키를 넣어주세요.
+const apiKey = "AIzaSyD3pkGps6NfXeuwvRqHpJVKqamxEOfGAKY";
+
+const genAI = new GoogleGenerativeAI(apiKey);
+
+// 시도할 모델 순서 (성공률 높은 순)
+// 1. 8b: 최신 경량 모델 (제일 빠르고 제한 적음)
+// 2. flash: 표준 모델
+// 3. pro: 고성능 모델
+const MODELS_TO_TRY = [
+  "gemini-1.5-flash-8b", 
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-001",
+  "gemini-1.5-pro",
+  "gemini-pro"
+];
+
+function cleanAndParseJSON(text: string): any {
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
+    if (jsonMatch && jsonMatch[1]) return JSON.parse(jsonMatch[1]);
+    const codeMatch = text.match(/```\n([\s\S]*?)\n```/);
+    if (codeMatch && codeMatch[1]) return JSON.parse(codeMatch[1]);
+    throw new Error("Failed to parse JSON");
+  }
+}
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  console.log("🚀 [데모모드] AI 연결 없이 샘플 데이터를 보여줍니다.");
+  const prompt = `
+    Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon.
+    Output strictly a JSON object with a key "restaurants".
+    Each item must have: "name", "category", "distance", "aiRating", "aiSummary", "keywords", "address".
+    Ensure valid JSON inside a code block.
+  `;
 
-  // 1초 동안 로딩하는 척 기다립니다 (리얼함을 위해)
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // [스마트 로직] 될 때까지 모델을 바꿔가며 시도합니다.
+  for (const modelName of MODELS_TO_TRY) {
+    console.log(`🔄 [AI연결시도] ${modelName} 모델로 접속 중...`);
+    
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
 
-  // 제가 미리 작성한 '가짜 맛집 데이터'입니다. (신성동/도룡동 맛집)
-  const mockData = [
-    {
-      name: "신성동 숯골원냉면",
-      category: "한식",
-      distance: "자차 3분",
-      aiRating: 4.5,
-      aiSummary: "4대째 내려오는 평양냉면 맛집으로, 꿩 육수의 깊은 맛과 쫄깃한 메밀면이 일품입니다. 여름철 점심시간에는 웨이팅이 필수입니다.",
-      keywords: ["평양냉면", "꿩육수", "웨이팅필수", "백년가게"],
-      address: "대전 유성구 신성로 290"
-    },
-    {
-      name: "천리집",
-      category: "한식",
-      distance: "자차 2분",
-      aiRating: 4.7,
-      aiSummary: "순대국밥 전문점으로, 잡내 없이 깔끔한 국물과 푸짐한 건더기가 특징입니다. 연구단지 직장인들의 소울푸드로 불립니다.",
-      keywords: ["순대국밥", "무한리필", "가성비", "해장"],
-      address: "대전 유성구 신성남로 127"
-    },
-    {
-      name: "이화수전통육개장 대전신성점",
-      category: "한식",
-      distance: "자차 4분",
-      aiRating: 4.2,
-      aiSummary: "파가 듬뿍 들어간 얼큰한 육개장이 대표 메뉴입니다. 넓은 주차장이 있어 점심 회식 장소로도 인기가 많습니다.",
-      keywords: ["육개장", "주차편리", "얼큰함", "점심회식"],
-      address: "대전 유성구 유성대로1184번길 11-16"
-    },
-    {
-      name: "비비스",
-      category: "양식",
-      distance: "자차 5분",
-      aiRating: 4.4,
-      aiSummary: "도룡동 하우스디어반에 위치한 캐주얼 레스토랑입니다. 화덕피자와 파스타가 맛있으며 분위기가 깔끔해 미팅 장소로 좋습니다.",
-      keywords: ["화덕피자", "파스타", "분위기좋은", "데이트"],
-      address: "대전 유성구 엑스포로 151"
-    },
-    {
-      name: "낭랑유",
-      category: "중식",
-      distance: "자차 3분",
-      aiRating: 4.3,
-      aiSummary: "신성동의 깔끔한 중식당으로, 짬뽕 국물이 진하고 탕수육이 바삭합니다. 점심 코스 요리 가성비가 훌륭합니다.",
-      keywords: ["짬뽕맛집", "탕수육", "깔끔한", "룸있음"],
-      address: "대전 유성구 신성로 106"
-    },
-     {
-      name: "김가네김밥 신성점",
-      category: "분식",
-      distance: "도보 5분",
-      aiRating: 3.8,
-      aiSummary: "간단하게 점심을 해결하기 좋은 분식점입니다. 라면과 김밥 조합이 가장 인기 있으며 회전율이 빠릅니다.",
-      keywords: ["혼밥", "분식", "빠른식사", "가성비"],
-      address: "대전 유성구 신성로 72"
+      if (!text) throw new Error("Empty response");
+
+      console.log(`✅ [AI연결성공] ${modelName} 모델이 데이터를 가져왔습니다!`);
+      
+      const parsedData = cleanAndParseJSON(text);
+      return parsedData.restaurants.map((item: any, index: number) => ({
+        id: `gemini-${index}-${Date.now()}`,
+        name: item.name,
+        category: Object.values(Category).includes(item.category) ? item.category : Category.OTHER,
+        distance: item.distance || "근처",
+        aiRating: item.aiRating || 0,
+        aiSummary: item.aiSummary || "정보 없음",
+        keywords: item.keywords || [],
+        address: item.address || ""
+      }));
+
+    } catch (error: any) {
+      console.warn(`⚠️ [실패] ${modelName} 응답 없음. 다음 모델로 전환합니다. (에러: ${error.message})`);
+      // 여기서 에러를 던지지 않고, 다음 루프(다음 모델)로 넘어갑니다.
+      continue;
     }
-  ];
+  }
 
-  // 데이터 반환 (API 호출인 척 함)
-  return mockData.map((item: any, index: number) => ({
-      id: `mock-${index}-${Date.now()}`,
-      name: item.name,
-      category: item.category,
-      distance: item.distance,
-      aiRating: item.aiRating,
-      aiSummary: item.aiSummary,
-      keywords: item.keywords,
-      address: item.address
-    }));
+  // 모든 모델이 다 실패했을 경우 (정말 키 문제일 때만 발생)
+  throw new Error("모든 AI 모델이 응답하지 않습니다. API 키를 새로 발급받아주세요.");
 };
