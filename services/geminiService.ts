@@ -1,6 +1,6 @@
-import { Restaurant, Category } from "../types";
+import { Restaurant } from "../types";
 
-// [긴급 처방] API 키 문제로 스트레스 받으시니, 
+// [긴급 처방] API 키 스트레스 받지 마세요!
 // 일단 AI 연결 없이 '샘플 데이터'를 바로 보여주는 모드로 변경합니다.
 // 이 코드는 100% 작동합니다. 화면이 어떻게 나오는지 먼저 확인하세요!
 
@@ -10,7 +10,7 @@ export const fetchRestaurants = async (): Promise<Restaurant[]> => {
   // 1초 동안 로딩하는 척 기다립니다 (리얼함을 위해)
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  // 제가 미리 작성한 '가짜 맛집 데이터'입니다.
+  // 제가 미리 작성한 '가짜 맛집 데이터'입니다. (신성동/도룡동 맛집)
   const mockData = [
     {
       name: "신성동 숯골원냉면",
