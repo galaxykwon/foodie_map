@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Restaurant, Category } from "../types";
 
-// [인증] 사용자님의 키 유지
-const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto";
+// [적용 완료] 사용자님이 주신 새 키(IcNg로 끝나는 키)를 적용했습니다.
+const apiKey = "AIzaSyDKxCRIJBraZs-lU-j8KbQCc_Qk4tzIcNg";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
@@ -20,11 +20,10 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [로그 확인] 이 메시지가 보이면 성공입니다.
-  console.log("🚀 [FINALE] 표준 모델 gemini-1.5-flash 가동!");
+  // [확인용] 이 로그가 보여야 키가 바뀐 것입니다.
+  console.log("🚀 [키변경] 새 키(...IcNg) + 1.5-flash 모델 적용 완료!");
 
-  // [수정] 복잡한 버전 번호(-001, -002)를 다 떼고, 가장 표준적인 이름을 사용합니다.
-  // 배포 문제가 해결되었으므로, 이제 이 모델은 무조건 작동합니다.
+  // [설정] 새 키에서는 가장 표준적인 'gemini-1.5-flash'가 정답입니다.
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
