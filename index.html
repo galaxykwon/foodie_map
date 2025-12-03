@@ -1,57 +1,30 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Restaurant, Category } from "../types";
-
-// [인증 성공] 현재 작동 중인 키 유지
-const apiKey = "AIzaSyDvzLRTrtHpyYdyFm3tubcoL06wqAHtZto";
-
-const genAI = new GoogleGenerativeAI(apiKey);
-
-function cleanAndParseJSON(text: string): any {
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
-    if (jsonMatch && jsonMatch[1]) return JSON.parse(jsonMatch[1]);
-    const codeMatch = text.match(/```\n([\s\S]*?)\n```/);
-    if (codeMatch && codeMatch[1]) return JSON.parse(codeMatch[1]);
-    throw new Error("Failed to parse JSON from response");
-  }
-}
-
-export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [메시지 확인] 이 로그가 떠야 진짜 새 코드입니다.
-  console.log("🚀 [제발해결] gemini-1.5-pro 모델로 변경 완료!");
-
-  // [수정] 1.5-flash 대신 1.5-pro 사용
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-  const prompt = `
-    Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon.
-    Output strictly a JSON object with a key "restaurants".
-    Each item must have: "name", "category", "distance", "aiRating", "aiSummary", "keywords", "address".
-    Ensure valid JSON inside a code block.
-  `;
-
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    if (!text) throw new Error("Empty response from AI");
-
-    const parsedData = cleanAndParseJSON(text);
-    return parsedData.restaurants.map((item: any, index: number) => ({
-      id: `gemini-${index}-${Date.now()}`,
-      name: item.name,
-      category: Object.values(Category).includes(item.category) ? item.category : Category.OTHER,
-      distance: item.distance || "근처",
-      aiRating: item.aiRating || 0,
-      aiSummary: item.aiSummary || "정보 없음",
-      keywords: item.keywords || [],
-      address: item.address || ""
-    }));
-  } catch (error) {
-    console.error("Gemini API Error details:", error);
-    throw error;
-  }
-};
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국연구재단 맛집 지도</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <style>
+      body {
+        font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+      }
+      /* 스크롤바 숨기기 (깔끔한 UI용) */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
