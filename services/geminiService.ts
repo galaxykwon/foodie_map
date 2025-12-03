@@ -20,12 +20,12 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [확인용] Flash가 안 되니 Pro 모델로 변경했음을 알리는 로그
-  console.log("🚀 [모델변경] gemini-1.5-pro 모델로 시도합니다!");
+  // [확인용] 배포가 잘 되고 있으니 이 메시지가 바로 뜰 겁니다.
+  console.log("🚀 [진짜마지막] gemini-1.5-flash-002 (최신버전) 시도!");
 
-  // [수정] Flash 대신 더 성능이 좋은 Pro 모델 사용
-  // 이 모델은 1.5 버전의 표준이므로 404 없이 작동할 확률이 높습니다.
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+  // [수정] 별명 대신 '정확한 버전 번호'를 사용합니다.
+  // 404 오류를 피하기 위한 가장 확실한 방법입니다.
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-002" });
 
   const prompt = `
     Find 15-20 popular lunch restaurants near the "National Research Foundation of Korea" (NRF) in Daejeon.
