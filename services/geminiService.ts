@@ -20,11 +20,10 @@ function cleanAndParseJSON(text: string): any {
 }
 
 export const fetchRestaurants = async (): Promise<Restaurant[]> => {
-  // [★필수 확인★] 로그에 이 메시지가 떠야 진짜 코드가 바뀐 겁니다.
-  console.log("🚀 [Final] gemini-1.5-flash 모델 가동 시작!");
+  // [★중요★] 이 로그가 F12 콘솔에 떠야만 성공입니다.
+  console.log("🚀 [최종확인] 모델: gemini-1.5-flash / 접속시간: " + new Date().toLocaleTimeString());
 
-  // 2.0(실험용) -> 1.5(표준) 변경. 
-  // 1.5 모델은 429 에러 없이 무료로 작동합니다.
+  // [수정] 2.0(유료/제한) -> 1.5(무료/무제한) 변경
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
